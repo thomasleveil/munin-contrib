@@ -59,7 +59,7 @@ contribute to this plugin at https://github.com/munin-monitoring/contrib
 
 =head1 VERSION
 
-    1.1
+    1.2
 
 =head1 CHANGELOG
 
@@ -71,9 +71,13 @@ contribute to this plugin at https://github.com/munin-monitoring/contrib
  
     fix transmission error handling
 
+=head2 1.2 - 2013/03/04
+
+    provides better reason for failing when called for autoconf
+    
 =cut
 """
-__version__ = '1.1'
+__version__ = '1.2'
 
 
 import os
@@ -132,9 +136,13 @@ paused.colour 8F8F8F
 def autoconf():
     try:
         import transmissionrpc
-        print('yes')
+        try:
+            transmissionrpc.Client(host, port=port, user=user, password=passwd)
+            print('yes')
+        except transmissionrpc.TransmissionError, err:
+            print("no %s" % err)
     except ImportError:
-        print 'no python module \'transmissionrpc\' missing'
+        print 'no python module \'transmissionrpc\' is missing'
 
 
 def fetch():
@@ -204,5 +212,6 @@ if __name__ == '__main__':
         elif sys.argv[1] != "":
             raise ValueError("unknown parameter '%s'" % sys.argv[1])
 
-fetch()
-sys.exit(0)
+    else:
+        fetch()
+
